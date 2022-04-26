@@ -30,7 +30,7 @@
 #include <icebin/contracts/contracts.hpp>
 #include <icebin/e1ve0.hpp>
 #include <spsparse/netcdf.hpp>
-
+#include <cstdio>
 #ifdef USE_PISM
 #include <icebin/pism/IceCoupler_PISM.hpp>
 #endif
@@ -184,6 +184,7 @@ void GCMCoupler::model_start(
 //        contracts::setup(*this, *ice_coupler);    // where does this go w.r.t ncread() and upate?
 
         // Dynamic ice model is instantiated here...
+         printf("time_start_s %d \n", time_start_s);
         ice_coupler->model_start(cold_start, time_base, time_start_s);
         ice_coupler->print_contracts();
     }
@@ -361,7 +362,8 @@ void GCMCoupler::ncio_gcm_input(NcIO &ncio,
 
 void GCMCoupler::ncio_rsf(ibmisc::NcIO &ncio)
 {
-
+    printf("BEGIN GCMCoupler::ncio_rsf\n");
+    printf("ncio.rw = %c\n", ncio.rw);
     // Allocate space to read...
     if (ncio.rw == 'r') {
         XuE0s.clear();
@@ -381,6 +383,7 @@ void GCMCoupler::ncio_rsf(ibmisc::NcIO &ncio)
             {"dimXs", "dimEs"});
         ice_coupler->ncio_icebin_rsf(ncio);
     }
+    printf("END GCMCoupler::ncio_rsf\n");
 }
 
 /** Top-level ncio() to log input to coupler. (GCM->coupler) */
@@ -455,10 +458,14 @@ double time_s,        // Simulation time [s]
 VectorMultivec const &gcm_ovalsE,
 bool run_ice)    // if false, only initialize
 {
+
+    printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
+    printf("Next update timespan");
+     
     timespan = std::array<double,2>{timespan[1], time_s};
 
-printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
     // ------------------------ Most MPI Nodes
+    printf("XA1 gcm_ovalsE.size()  %d\n",gcm_ovalsE.size());
     if (!gcm_params.am_i_root()) {
         GCMInput out({0,0,0,0});
         for (size_t sheetix=0; sheetix < ice_couplers.size(); ++sheetix) {
@@ -473,17 +480,17 @@ printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
     // -------- Figure out our calendar day to format filenames
     if (gcm_params.icebin_logging) {
         std::string fname = "gcm-out-" + this->sdate(time_s) + ".nc";
+        if (!run_ice) {fname = "gcm-out-A-init.nc";}
         NcIO ncio(fname, 'w');
         ncio_gcm_output(ncio, gcm_ovalsE, timespan,
             time_unit, "");
         ncio();
-    }
+   }
 
     // ---------- Initialize output: A,E,Atopo,Etopo
     std::vector<int> nvars;
     for (auto &gcmi : gcm_inputs) nvars.push_back(gcmi.size());
     GCMInput out(nvars);
-
     // ---------- Run per-ice-sheet couplers
     {
         std::vector<SparseSetT const *> dimE1s;
@@ -492,10 +499,9 @@ printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
             auto &ice_coupler(ice_couplers[sheetix]);    // IceCoupler
             IceRegridder const *ice_regridder = ice_coupler->ice_regridder;
 
-printf("AA1\n");
             IceCoupler::CoupleOut iout(ice_coupler->couple(
                 timespan, gcm_ovalsE, out.gcm_ivalss_s, run_ice));
-printf("AA2\n");
+            
             dimE1s.push_back(iout.dimE);
             XuE1s.push_back(sparsify(*iout.XuE,
                 std::array<SparsifyTransform,2>{
@@ -513,7 +519,7 @@ printf("AA2\n");
         }
         XuE0s = std::move(XuE1s);    // save state between timesteps
     }
-
+    printf("END GCMCoupler::couple"); 
     return out;
 
 }

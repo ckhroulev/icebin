@@ -419,7 +419,8 @@ char const *long_name_f, int long_name_len)
         new blitz::Array<double,3>(f_to_c(var_f.to_blitz())));
 
     unsigned int flags = 0;
-
+    printf("icebin::gcmce_add_gcm_outpute\n");
+    printf("field_name %s\n",field_name.c_str());
     static double const xnan = std::numeric_limits<double>::quiet_NaN();
     self->gcm_outputsE.add(
         field_name, xnan, units, ncunits, mm, bb, flags, long_name);
@@ -561,10 +562,12 @@ void gcmce_io_rsf(GCMCoupler_ModelE *self,
         ice_coupler->icemodel_rsf(fname, rw);
     }
 
+    if (self->am_i_root()) {
     // Read/Write IceBin coupler state
     {NcIO ncio(sheet_rsf(modele_root, "icebin"), rw);
         self->ncio_rsf(ncio);
     }
+}
 }
 
 // ===========================================================
@@ -580,6 +583,8 @@ void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int 
 
     // Call superclass model_start()
     double const time_s = itimei * dtsrc;
+
+    printf("time_s= %d \n",time_s);
     self->model_start(cold_start,
         ibmisc::Datetime(yeari,1,1), time_s);
 
@@ -590,13 +595,17 @@ void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int 
     //    self->update_topo(time_s);    // initial_timestep=true
 
 
-    if (cold_start) {
+    //! LRif (cold_start) {
+    // LR changed to call this for warm start too
+    // Not sure if it is correct to do this
+    // But cannot restart otherwise
+        printf("! LR gcmce_couple_native with runice=false\n");
         // d) Sync with dynamic ice model
         // This receives info back from ice model
         // (for warm start, the infor was already saved in a restart file)
         gcmce_couple_native(self, itimei, false,    // run_ice=false
             nullptr, nullptr, nullptr);    // !run_ice ==> no E1vE0c to return
-    }
+    //! LR}
 
     printf("END gcmce_model_start()\n");
 }
@@ -702,7 +711,9 @@ int **E1vE0c_indices_p,
 double **E1vE0c_values_p,
 int *E1vE0c_nele)
 {
+    printf("BEGIN gcmce_couple_native on GCMCoupler_ModelE\n");
     double time_s = itime * self->dtsrc;
+    printf("! LR icebin itime %d\n",itime);
 
     // Fill it in...
     VectorMultivec gcm_ovalsE_s(self->gcm_outputsE.size());
@@ -764,13 +775,17 @@ printf("domainA size=%ld base_hc=%d  nhc_ice=%d\n", domainA.data.size(), base_hc
         boost::mpi::gather(self->gcm_params.world, gcm_ovalsE_s,
             every_gcm_ovalsE_s, self->gcm_params.gcm_root);
 
-        // Concatenate coupler inputs
+        // Concatenate coupler inputs. This sets up gcm_ovalsE_s
         VectorMultivec gcm_ovalsE_s(concatenate(every_gcm_ovalsE_s));
-
+        printf("BA4 gcm_ovalsE_s.size() %d \n",gcm_ovalsE_s.size());
+        
         // Couple on root!
         // out contains GLOBAL output for all MPI ranks
+        printf("Now call GCMCoupler_ModelE::couple()\n");
+        printf("time_s %d\n",time_s);
         out = self->couple(time_s, gcm_ovalsE_s, run_ice);  // move semantics
-
+        printf("Called GCMCoupler_ModelE::couple()\n");
+ 
         // Split up the output (and 
         std::vector<GCMInput> every_outs(
             split_by_domain(out, *self->domains, *self->domains));
@@ -830,7 +845,8 @@ printf("domainA size=%ld base_hc=%d  nhc_ice=%d\n", domainA.data.size(), base_hc
 
 
     }
-}
+printf("END gcmce_couple_native on GCMCoupler_ModelE");
+} 
 // =======================================================
 
 /** Called from MPI rank.  Copies output of coupling back into
@@ -979,6 +995,7 @@ std::vector<blitz::Array<double,1>> const &emI_ices,
 GCMInput &out,
 TupleListLT<1> &wEAm_base)   // Clear; then store wEAm in here
 {
+    printf("BEGIN:GCMCoupler_ModelE::update_topo");
     auto const &indexingA(gcm_regridder->agridA->indexing);
     auto const &indexingE(gcm_regridder->indexingE);
 
@@ -1173,7 +1190,9 @@ double time_s,        // Simulation time [s]
 VectorMultivec const &gcm_ovalsE,
 bool run_ice)    // if false, only initialize
 {
+    printf("BEGIN GCMCoupler_ModelE::couple()\n");
     // Call superclass coupling for starters
+    printf("GCMCoupler_ModelE::couple time_s = %d \n",time_s);
     GCMInput out(this->GCMCoupler::couple(time_s, gcm_ovalsE, run_ice));
 
     // Nothing more to do unless we're root
@@ -1199,6 +1218,7 @@ bool run_ice)    // if false, only initialize
     // Log the results
     if (gcm_params.icebin_logging) {
         std::string fname = "gcm-in-" + sdate(time_s) + ".nc";
+        if (!run_ice) {fname = "gcm-in-A-init.nc";} 
         NcIO ncio(fname, 'w');
         auto one_dims(get_or_add_dims(ncio, {"one"}, {1}));
         NcVar info_var = get_or_add_var(ncio, "info", ibmisc::get_nc_type<double>(), one_dims);
@@ -1229,7 +1249,7 @@ bool run_ice)    // if false, only initialize
 
 
 
-printf("END GCMCoupler::couple()\n");
+printf("END GCMCoupler_ModelE::couple()\n");
     return out;
 }
 // ------------------------------------------------------------

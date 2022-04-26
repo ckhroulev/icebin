@@ -311,9 +311,6 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     // This call through the GCMCoupler will call back to setup_contracts_xxx().
     contracts::setup(gcm_coupler, this);
 
-//printf("start = %f\n", pism_grid->time->start());
-//printf("end = %f\n", pism_grid->time->end());
-
     // This has the following stack trace:
     //  IceCoupler::init()                    [iceModel.cc]
     //  IceCoupler::model_state_setup()       [iMinit.cc]
@@ -522,6 +519,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
         }
 
         // -------- Figure out the timestep
+        printf("Now write pism-in\n");
         pism_in_nc->write(time_s);
 
 
@@ -547,6 +545,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
 
     pism_ice_model->prepare_outputs(time_s);
 
+    printf("Now write pism-out\n");
     pism_out_nc->write(time_s);    // Writes from PISM-format variables on I grid
 
     get_state(ice_ovalsI, run_ice ? 0 : contracts::INITIAL);

@@ -117,12 +117,14 @@ void IceCoupler::ncio_icebin_rsf(ibmisc::NcIO &ncio)
     // dimE0 and IvE0 are set when gcmce_couple() is called with run_ice=true
     // The first time this is called to write will be before that time.
     // In that case, dimE0 and IvE0 will not yet bet set.
-
+    printf("BEGIN IceCoupler::ncio_icebin_rsf\n");
+    printf("ncio.rw = %c\n", ncio.rw);
     if (ncio.rw == 'r') dimE0.reset(new SparseSetT);
     if (dimE0.get() != nullptr) dimE0->ncio(ncio, "IceCoupler."+name()+".dimE0");
 
     if (ncio.rw == 'r') IvE0.reset(new EigenSparseMatrixT);
     if (IvE0.get() != nullptr) ncio_eigen(ncio, *IvE0, "IceCoupler."+name()+".IvE0");
+    printf("END IceCoupler::ncio_icebin_rsf\n");
 }
 
 IceCoupler::~IceCoupler() {}
@@ -133,6 +135,7 @@ void IceCoupler::model_start(
     ibmisc::Datetime const &time_base,
     double time_start_s)
 {
+    printf("BEGIN IceCoupler::model_start");
     // Set up writers
     if (gcm_coupler->am_i_root()) {
         for (int io=0; io<2; ++io) {    // INPUT / OUTPUT
@@ -149,6 +152,7 @@ void IceCoupler::model_start(
 
     // Allocate
     ice_ovalsI.reference(blitz::Array<double,2>(contract[OUTPUT].size(), nI()));
+    printf("END IceCoupler::model_start");
 }
 
 /** Print summary info of the contracts to STDOUT. */
@@ -281,8 +285,8 @@ bool run_ice)
         return ret;
     }
 
-    printf("BEGIN IceCoupler::couple(%s)\n", name().c_str());
-
+    printf("[root] BEGIN IceCoupler::couple(%s)\n", name().c_str());
+    printf("run_ice=%d\n", run_ice);
     // ========== Get Ice Inputs
     // E_s = Elevation grid (sparse indices)
     // E0 = Elevation grid @ beginning of timestep (dense indices)
@@ -291,8 +295,11 @@ bool run_ice)
     // Except _s ending means they use sparse indexing.
 
     // ------------- Compute dimE transformation, if this is the first round
+    printf("Initially dimE0.get() (pointer) %d\n",dimE0.get());
+    printf("A gcm_ovalsE_s.size() %d\n", gcm_ovalsE_s.size());
     if (!run_ice) {
         dimE0.reset(new SparseSetT);
+        printf("gcm_ovalsE_s.size() %d\n",gcm_ovalsE_s.size());      
         for (size_t i=0; i<gcm_ovalsE_s.size(); ++i) {
             long iE_s(gcm_ovalsE_s.index[i]);
             dimE0->add_dense(iE_s);
@@ -303,8 +310,11 @@ bool run_ice)
     // Densify gcm_ovalsE_s --> gcm_ovalsE
     // This should ONLY involve iE already mentioned in IvE0;
     // if not, ibmisc_error() will be called inside to_dense()
+    printf("D gcm_coupler->gcm_outputsE.size() %d\n", gcm_coupler->gcm_outputsE.size());
+    printf("D dimE0-> dense_extent %d\n", dimE0->dense_extent());
     blitz::Array<double,2> gcm_ovalsE(gcm_coupler->gcm_outputsE.size(), dimE0->dense_extent());
     gcm_ovalsE = 0;
+    printf("B gcm_ovalsE_s.size() %d\n", gcm_ovalsE_s.size());
     for (size_t i=0; i<gcm_ovalsE_s.size(); ++i) {
         long iE_s(gcm_ovalsE_s.index[i]);
         int iE0(dimE0->to_dense(iE_s));   // Can raise error if iE_s not found
@@ -312,6 +322,7 @@ bool run_ice)
             gcm_ovalsE(ivar, iE0) += gcm_ovalsE_s.val(ivar, i);
         }
     }
+    printf("gcm_ovalsE size %d\n",gcm_ovalsE.size());
 
 
     // Set up scalars used to instantiate variable conversion matrices
@@ -331,12 +342,14 @@ bool run_ice)
         // ========= Step the ice model forward
         if (writer[INPUT].get()) {
             // writing icemodel-in
+            printf("Now write icemodel-in\n");
             writer[INPUT]->write(time_s, ice_ivalsI);
         }
         ice_ovalsI = 0;
         run_timestep(time_s, ice_ivalsI, ice_ovalsI, run_ice);
         if (writer[OUTPUT].get()) {
             // writing icemodel-out
+            printf("Now write icemodel-out\n");
             writer[OUTPUT]->write(time_s, ice_ovalsI);
         }
     }
