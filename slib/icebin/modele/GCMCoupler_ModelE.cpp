@@ -549,6 +549,8 @@ void gcmce_io_rsf(GCMCoupler_ModelE *self,
     //    Therefore, we must read the symlink and munge filenames to
     //    generate the non-symlink names of the subsidiary restart
     //    files to read.
+    printf("BEGIN gcmce_io_rsf\n"); 
+
     std::string modele_root(
         rw=='w' ? modele_fname
         : remove_extension(read_symlink_or_file(modele_fname + ".nc")));
@@ -568,6 +570,7 @@ void gcmce_io_rsf(GCMCoupler_ModelE *self,
         self->ncio_rsf(ncio);
     }
 }
+     printf("END gcmce_io_rsf\n"); 
 }
 
 // ===========================================================
@@ -583,8 +586,6 @@ void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int 
 
     // Call superclass model_start()
     double const time_s = itimei * dtsrc;
-
-    printf("time_s= %d \n",time_s);
     self->model_start(cold_start,
         ibmisc::Datetime(yeari,1,1), time_s);
 
@@ -595,17 +596,14 @@ void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int 
     //    self->update_topo(time_s);    // initial_timestep=true
 
 
-    //! LRif (cold_start) {
-    // LR changed to call this for warm start too
-    // Not sure if it is correct to do this
-    // But cannot restart otherwise
+    if (cold_start) {
         printf("! LR gcmce_couple_native with runice=false\n");
         // d) Sync with dynamic ice model
         // This receives info back from ice model
         // (for warm start, the infor was already saved in a restart file)
         gcmce_couple_native(self, itimei, false,    // run_ice=false
             nullptr, nullptr, nullptr);    // !run_ice ==> no E1vE0c to return
-    //! LR}
+    }
 
     printf("END gcmce_model_start()\n");
 }
@@ -714,6 +712,7 @@ int *E1vE0c_nele)
     printf("BEGIN gcmce_couple_native on GCMCoupler_ModelE\n");
     double time_s = itime * self->dtsrc;
     printf("! LR icebin itime %d\n",itime);
+    printf("! LR icebin time_s %d\n",time_s);
 
     // Fill it in...
     VectorMultivec gcm_ovalsE_s(self->gcm_outputsE.size());

@@ -184,7 +184,7 @@ void GCMCoupler::model_start(
 //        contracts::setup(*this, *ice_coupler);    // where does this go w.r.t ncread() and upate?
 
         // Dynamic ice model is instantiated here...
-         printf("time_start_s %d \n", time_start_s);
+        printf("time_start_s %d \n", time_start_s);
         ice_coupler->model_start(cold_start, time_base, time_start_s);
         ice_coupler->print_contracts();
     }
@@ -362,19 +362,18 @@ void GCMCoupler::ncio_gcm_input(NcIO &ncio,
 
 void GCMCoupler::ncio_rsf(ibmisc::NcIO &ncio)
 {
-    printf("BEGIN GCMCoupler::ncio_rsf\n");
-    printf("ncio.rw = %c\n", ncio.rw);
+    printf("BEGIN GCMCoupler::ncio_rsf, action=%c\n",ncio.rw);
     // Allocate space to read...
     if (ncio.rw == 'r') {
         XuE0s.clear();
         XuE0s.reserve(ice_couplers.size());
         for (size_t sheetix=0; sheetix < ice_couplers.size(); ++sheetix) {
-            XuE0s.push_back(std::unique_ptr<ibmisc::linear::Weighted_Eigen>());
+            XuE0s.push_back(std::unique_ptr<linear::Weighted_Eigen>(new linear::Weighted_Eigen));
         }
     }
+    for (size_t sheetix=0; sheetix < ice_couplers.size(); ++sheetix) {
+        if (XuE0s[sheetix].get() == nullptr) printf("XuE0s[0] is nullptr\n");
 
-//    for (size_t sheetix=0; sheetix < ice_couplers.size(); ++sheetix) {
-    for (size_t sheetix=0; sheetix < XuE0s.size(); ++sheetix) {
 
         if (XuE0s[sheetix].get() == nullptr) continue;
         auto &ice_coupler(ice_couplers[sheetix]);
@@ -460,9 +459,11 @@ bool run_ice)    // if false, only initialize
 {
 
     printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
-    printf("Next update timespan");
+    // LR temporary fix
+    double last_time_s = time_s - 86400;
+    printf("Last time_s =%d\n",last_time_s);
      
-    timespan = std::array<double,2>{timespan[1], time_s};
+    timespan = std::array<double,2>{last_time_s, time_s};
 
     // ------------------------ Most MPI Nodes
     printf("XA1 gcm_ovalsE.size()  %d\n",gcm_ovalsE.size());
@@ -491,6 +492,7 @@ bool run_ice)    // if false, only initialize
     std::vector<int> nvars;
     for (auto &gcmi : gcm_inputs) nvars.push_back(gcmi.size());
     GCMInput out(nvars);
+
     // ---------- Run per-ice-sheet couplers
     {
         std::vector<SparseSetT const *> dimE1s;

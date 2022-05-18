@@ -117,8 +117,8 @@ void IceCoupler::ncio_icebin_rsf(ibmisc::NcIO &ncio)
     // dimE0 and IvE0 are set when gcmce_couple() is called with run_ice=true
     // The first time this is called to write will be before that time.
     // In that case, dimE0 and IvE0 will not yet bet set.
-    printf("BEGIN IceCoupler::ncio_icebin_rsf\n");
-    printf("ncio.rw = %c\n", ncio.rw);
+    printf("BEGIN IceCoupler::ncio_icebin_rsf, action=%c\n",ncio.rw);
+
     if (ncio.rw == 'r') dimE0.reset(new SparseSetT);
     if (dimE0.get() != nullptr) dimE0->ncio(ncio, "IceCoupler."+name()+".dimE0");
 
@@ -135,7 +135,7 @@ void IceCoupler::model_start(
     ibmisc::Datetime const &time_base,
     double time_start_s)
 {
-    printf("BEGIN IceCoupler::model_start");
+    printf("BEGIN IceCoupler::model_start\n");
     // Set up writers
     if (gcm_coupler->am_i_root()) {
         for (int io=0; io<2; ++io) {    // INPUT / OUTPUT
@@ -152,7 +152,7 @@ void IceCoupler::model_start(
 
     // Allocate
     ice_ovalsI.reference(blitz::Array<double,2>(contract[OUTPUT].size(), nI()));
-    printf("END IceCoupler::model_start");
+    printf("END IceCoupler::model_start \n");
 }
 
 /** Print summary info of the contracts to STDOUT. */

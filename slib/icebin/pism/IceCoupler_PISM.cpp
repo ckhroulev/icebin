@@ -525,7 +525,9 @@ void IceCoupler_PISM::run_timestep(double time_s,
 
         // =========== Run PISM for one coupling timestep
         // Time of last time we coupled
-        auto time0(pism_grid->ctx()->time()->current());
+        //auto time0(pism_grid->ctx()->time()->current());
+        // LR temporary fix
+        double time0 = time_s - 86400;
         printf("BEGIN pism_ice_model->run_to(%f -> %f) %p\n",
             time0, time_s, pism_ice_model.get());
         // See pism::icebin::IBIceModel::run_to()
