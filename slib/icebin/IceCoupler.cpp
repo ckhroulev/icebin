@@ -147,11 +147,10 @@ void IceCoupler::model_start(
         }
     }
 
+    ice_ovalsI = 0;
     // Subclass-specific cold start
-    _model_start(cold_start, time_base, time_start_s);
+    _model_start(cold_start, time_base, time_start_s, ice_ovalsI);
 
-    // Allocate
-    ice_ovalsI.reference(blitz::Array<double,2>(contract[OUTPUT].size(), nI()));
     printf("END IceCoupler::model_start \n");
 }
 
@@ -247,7 +246,7 @@ printf("BEGIN construct_ice_ivalsI(dt=%g)\n", dt);
         blitz::shape(ice_ivalsI_e.cols(), ice_ivalsI_e.rows()),
         blitz::neverDeleteData);
 
-printf("AA6\n");
+
     // Continue construction in a contract-specific manner
     reconstruct_ice_ivalsI(ice_ivalsI, dt);
 
@@ -295,7 +294,6 @@ bool run_ice)
     // Except _s ending means they use sparse indexing.
 
     // ------------- Compute dimE transformation, if this is the first round
-    printf("Initially dimE0.get() (pointer) %d\n",dimE0.get());
     printf("A gcm_ovalsE_s.size() %d\n", gcm_ovalsE_s.size());
     if (!run_ice) {
         dimE0.reset(new SparseSetT);
@@ -330,6 +328,7 @@ bool run_ice)
     //       Should be OK because output variables that depend on by_dt
     //       are not needed on the first call.
     double const dt = timespan[1] - timespan[0];
+    printf("dt = %f \n",dt);
     std::vector<std::pair<std::string, double>> scalars({
         std::make_pair("by_dt", 1.0 / dt)});
 

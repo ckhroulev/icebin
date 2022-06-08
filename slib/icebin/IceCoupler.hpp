@@ -141,7 +141,8 @@ public:
     virtual void _model_start(
         bool cold_start,    // Is this a cold or warm start?
         ibmisc::Datetime const &time_base,
-        double time_start_s) = 0;
+        double time_start_s,
+        blitz::Array<double,2> &ice_ovalsI) = 0;
 
     void print_contracts();
 

@@ -617,6 +617,7 @@ blitz::Array<double,3> &fhc3,
 blitz::Array<double,3> &elevE3,
 blitz::Array<int16_t,3> &underice3)
 {
+    printf("BEGIN make_topoA\n");
 
     Hntr hntr_AvO(17.17, hspecA, hspecO);
 
@@ -850,6 +851,7 @@ if (!std::isnan(zland_minA2(j,i))) printf("minmax %d,%d (%f %f) (%d %d) (%d %d)\
     std::vector<std::string> errors;
     sanity_check_land_fractions(foceanA2, flakeA2, fgrndA2, fgiceA2, errors);
     sanity_check_fhc(fhc3, errors);
+    printf("END make_topoA\n");
 
     return errors;
 }

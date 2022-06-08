@@ -170,7 +170,8 @@ public:
     virtual void _model_start(
         bool cold_start,
         ibmisc::Datetime const &time_base,
-        double time_start_s);
+        double time_start_s,
+        blitz::Array<double,2> &ice_ovalsI);
 
     /* Called from:
          MODELE.f: GISS_ModelE()

@@ -711,8 +711,9 @@ int *E1vE0c_nele)
 {
     printf("BEGIN gcmce_couple_native on GCMCoupler_ModelE\n");
     double time_s = itime * self->dtsrc;
-    printf("! LR icebin itime %d\n",itime);
-    printf("! LR icebin time_s %d\n",time_s);
+    printf("! LR icebin itime %f\n",itime);
+    printf("! LR icebin dtsrc %f\n",self->dtsrc);
+    printf("! LR icebin time_s %f\n",time_s);
 
     // Fill it in...
     VectorMultivec gcm_ovalsE_s(self->gcm_outputsE.size());
@@ -781,7 +782,7 @@ printf("domainA size=%ld base_hc=%d  nhc_ice=%d\n", domainA.data.size(), base_hc
         // Couple on root!
         // out contains GLOBAL output for all MPI ranks
         printf("Now call GCMCoupler_ModelE::couple()\n");
-        printf("time_s %d\n",time_s);
+        printf("time_s %f\n",time_s);
         out = self->couple(time_s, gcm_ovalsE_s, run_ice);  // move semantics
         printf("Called GCMCoupler_ModelE::couple()\n");
  
@@ -994,7 +995,7 @@ std::vector<blitz::Array<double,1>> const &emI_ices,
 GCMInput &out,
 TupleListLT<1> &wEAm_base)   // Clear; then store wEAm in here
 {
-    printf("BEGIN:GCMCoupler_ModelE::update_topo");
+    printf("BEGIN:GCMCoupler_ModelE::update_topo\n");
     auto const &indexingA(gcm_regridder->agridA->indexing);
     auto const &indexingE(gcm_regridder->indexingE);
 
@@ -1032,6 +1033,14 @@ TupleListLT<1> &wEAm_base)   // Clear; then store wEAm in here
         auto &mergemaskA(topoa.a_i.array("mergemask"));
         if (!run_ice) mergemaskA0.reference(mergemaskA);  // no mergemask on initialization
 
+        if (&mergemaskA0(0,0) == nullptr) {
+           printf("mergemaskA0 is not defined, so read it in\n");
+           NcIO ncio("dump_mergemaskA0.nc", 'r');
+           mergemaskA0.reference(mergemaskA);
+           auto dims(get_or_add_dims(ncio, {"jm", "im"}, {0,0}));
+           ncio_blitz(ncio, mergemaskA0, "mergemaskA0", "int", dims);
+        }
+       
         auto &fhc(topoa.a3.array("fhc"));
         auto &elevE(topoa.a3.array("elevE"));
 
@@ -1181,6 +1190,13 @@ TupleListLT<1> &wEAm_base)   // Clear; then store wEAm in here
 
     // Store this timestep's mergemask for next coupling time
     mergemaskA0.reference(mergemaskA);
+
+    // And dump it
+    NcIO ncio("dump_mergemaskA0.nc", 'w');
+    auto dims(get_or_add_dims(ncio, {"jm", "im"}, {mergemaskA0.extent(0), mergemaskA0.extent(1)}));
+    ncio_blitz(ncio, mergemaskA0, "mergemaskA0", "int", dims);
+
+    printf("END:GCMCoupler_ModelE::update_topo\n");
 }
 
 // ----------------------------------------------------------------------

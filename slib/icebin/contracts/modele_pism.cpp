@@ -43,7 +43,7 @@ static void _reconstruct_ice_ivalsI(
     blitz::Array<double,2> &ice_ivalsI,
     double dt)
 {
-printf("BEGIN modele_pism.cpp::_reconstruct_icevalsI()\n");
+printf("BEGIN modele_pism.cpp::_reconstruct_icevalsI(),dt=%d\n",dt);
     // ------------------ Pick relevant variables out of ice input & output
 
     // --------- Inputs of this Computation
@@ -89,7 +89,7 @@ printf("BEGIN modele_pism.cpp::_reconstruct_icevalsI()\n");
     // Get a PISM Enthalpy Converter
     pism::EnthalpyConverter enth(*ice_coupler->pism_config());
 
-printf("BB7\n");
+
     for (int i=0; i<ice_coupler->nI(); ++i) {
         double const H1 = ice_top_senth(i);    // [J kg-1]
 

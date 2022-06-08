@@ -184,7 +184,7 @@ void GCMCoupler::model_start(
 //        contracts::setup(*this, *ice_coupler);    // where does this go w.r.t ncread() and upate?
 
         // Dynamic ice model is instantiated here...
-        printf("time_start_s %d \n", time_start_s);
+        printf("time_start_s %f \n", time_start_s);
         ice_coupler->model_start(cold_start, time_base, time_start_s);
         ice_coupler->print_contracts();
     }
@@ -461,7 +461,7 @@ bool run_ice)    // if false, only initialize
     printf("BEGIN GCMCoupler::couple(time_s=%g, run_ice=%d)\n", time_s, run_ice);
     // LR temporary fix
     double last_time_s = time_s - 86400;
-    printf("Last time_s =%d\n",last_time_s);
+    printf("Last time_s =%f\n",last_time_s);
      
     timespan = std::array<double,2>{last_time_s, time_s};
 

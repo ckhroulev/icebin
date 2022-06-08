@@ -177,7 +177,8 @@ printf("\n");
 void IceCoupler_PISM::_model_start(
     bool cold_start,
     ibmisc::Datetime const &time_base,
-    double time_start_s)
+    double time_start_s,
+    blitz::Array<double,2> &ice_ovalsI)    // ice_ovalsI(nvar, nI)
 {
     printf("BEGIN IceCouple_PISM::_model_start()\n");
 
@@ -455,6 +456,13 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
                 "Grid mismatch: pism=(%d, %d) icebin=(%d, %d)", pism_grid->Mx(), pism_grid->My(), icebin_specI->nx(), icebin_specI->ny());
         }
     }
+    pism_ice_model->prepare_outputs(0.);
+
+    // Allocate
+    ice_ovalsI.reference(blitz::Array<double,2>(contract[OUTPUT].size(), nI()));
+   
+    // Fill in ice_ovalsI
+    get_state(ice_ovalsI, contracts::INITIAL);
 
     printf("END IceCoupler_PISM::_model_start()\n");
 }
@@ -467,7 +475,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
     PetscErrorCode ierr;
 
     printf("BEGIN IceCoupler_PISM::run_timestep()\n");
-
+ 
     // ----------- Bounds Checking
     // Check dimensions
     std::array<long,5> extents0{
@@ -521,7 +529,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
         // -------- Figure out the timestep
         printf("Now write pism-in\n");
         pism_in_nc->write(time_s);
-
+        pism_ice_model->dumpToFile("dump_pism_A.nc");
 
         // =========== Run PISM for one coupling timestep
         // Time of last time we coupled
@@ -545,6 +553,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
         pism_ice_model->set_rate(time1 - time0);
     }    // if run_ice
 
+    pism_ice_model->dumpToFile("dump_pism_B.nc");
     pism_ice_model->prepare_outputs(time_s);
 
     printf("Now write pism-out\n");
