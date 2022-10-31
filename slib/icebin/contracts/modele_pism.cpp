@@ -43,7 +43,7 @@ static void _reconstruct_ice_ivalsI(
     blitz::Array<double,2> &ice_ivalsI,
     double dt)
 {
-printf("BEGIN modele_pism.cpp::_reconstruct_icevalsI(),dt=%d\n",dt);
+printf("BEGIN modele_pism.cpp::_reconstruct_icevalsI(),dt=%f\n",dt);
     // ------------------ Pick relevant variables out of ice input & output
 
     // --------- Inputs of this Computation

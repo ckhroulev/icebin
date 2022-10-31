@@ -204,6 +204,8 @@ public:
     GCMInput &out,
     TupleListLT<1> &wEAm_base);   // Clear; then store wEAm in here
 
+    void init_focean();
+
     int _read_nhc_gcm();
 
     /** Copies GCM inputs back to original GCM-supplied sparse input arrays */

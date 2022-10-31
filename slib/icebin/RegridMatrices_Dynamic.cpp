@@ -246,7 +246,7 @@ std::unique_ptr<linear::Weighted_Eigen> compute_IvAE(
         // Smooth the underlying unsmoothed regridding transformation
         ret->M.reset(new EigenSparseMatrixT(smoothI * *ret->M));
     }
-//printf("END compute_IvAE\n");
+    printf("END compute_IvAE\n");
 
     return ret;
 }
@@ -266,7 +266,7 @@ static std::unique_ptr<linear::Weighted_Eigen> compute_EvA(IceRegridder const *r
     dimG->set_sparse_extent(regridder->nG('X'));
 
     // ----- Get the Ur matrices (which determines our dense dimensions)
-
+    //printf("1 dimE.dense_extent() %d\n",dimE->dense_extent());
     MakeDenseEigenT GvAp_m(
         A.GvAp,
         {SparsifyTransform::ADD_DENSE},
@@ -344,8 +344,9 @@ std::unique_ptr<RegridMatrices_Dynamic> GCMRegridder_Standard::regrid_matrices(
     printf("    nhc = %d\n", this->nhc());
     printf("    nE = %d\n", this->nE());
     printf("    nI = %d\n", regridder->nI());
-    printf("    nG = %d\n", regridder->nG());
+    //printf("    nG = %d\n", regridder->nG());
 #endif
+
 
     std::unique_ptr<RegridMatrices_Dynamic> rm(
         new RegridMatrices_Dynamic(regridder, params));

@@ -108,8 +108,8 @@ std::vector<blitz::Array<double,1>> const &emI_ices,    // elevation only for ce
 double const eq_rad,    // Radius of the earth
 std::vector<std::string> &errors)
 {
-
-#if 0
+printf("BEGIN merge_topoO\n");
+//if 0
 // Log inputs for debugging
 {
     auto &indexing(gcmO->ice_regridders()[0]->agridI.indexing);
@@ -118,6 +118,7 @@ std::vector<std::string> &errors)
     auto emI_ice2(unconst(reshape<double,1,2>(emI_ices[0], shapeI)));
 
 
+    printf("now write merge_topoO-in.nc\n");
     NcIO ncio("merge_topoO-in.nc", 'w');
 
     auto dims(get_or_add_dims(ncio, {"jmO", "imO"}, {foceanOp2.extent(0), foceanOp2.extent(1)}));
@@ -137,7 +138,7 @@ std::vector<std::string> &errors)
     ncio_blitz(ncio, emI_ice2, "emI_ice", "double", dimsI);
     ncio.flush();
 }
-#endif
+//#endif
 
     mergemaskOm2 = 0;
 
@@ -278,7 +279,7 @@ std::vector<std::string> &errors)
             foceanOm(iO) = 0.0;
             fgiceOm(iO) = fgiceOp(iO) * fact;
             mergemaskOm(iO) = 1;
-            fgrndOm(iO) = 1.0 - fgiceOm(iO) - flakeOm(iO);
+            fgrndOm(iO) = (1.0 - flakeOm(iO)) - fgiceOm(iO);
             zatmoOm(iO) = zatmoOp(iO) * fact;
         }
     }
@@ -335,9 +336,10 @@ std::vector<std::string> &errors)
         }
     }
 
-#if 0
+//#if 0
 // Log outputs for debugging
 {
+    printf("now write merge_topoO-out.nc\n");
     NcIO ncio("merge_topoO-out.nc", 'w');
 
     auto dims(get_or_add_dims(ncio, {"jmO", "imO"}, {foceanOp2.extent(0), foceanOp2.extent(1)}));
@@ -355,8 +357,9 @@ std::vector<std::string> &errors)
 
     ncio.flush();
 }
-#endif
+//#endif
 
+printf("END merge_topoO\n");
 }
 
 /** Creates a new indexingHC (1-D Atm. grid indexing plus nhc)

@@ -151,6 +151,21 @@ void IceCoupler::model_start(
     // Subclass-specific cold start
     _model_start(cold_start, time_base, time_start_s, ice_ovalsI);
 
+    int emI_ice_ix = standard_names[OUTPUT].at("elevmask_ice");
+    blitz::Array<double,1> out_emI_ice(ice_ovalsI(emI_ice_ix, blitz::Range::all()));
+
+    int emI_land_ix = standard_names[OUTPUT].at("elevmask_land");
+    blitz::Array<double,1> out_emI_land(ice_ovalsI(emI_land_ix, blitz::Range::all()));
+
+    // Check that elevmaskI is an alias for variable #elevmaskI_ix in ice_ovalsI
+    if (&ice_ovalsI(emI_ice_ix,0) != &out_emI_ice(0)) (*icebin_error)(-1,
+        "ice_ovalsI <%p> != emI_ice <%p>\n", &ice_ovalsI(emI_ice_ix,0), &out_emI_ice(0));
+    if (&ice_ovalsI(emI_land_ix,0) != &out_emI_land(0)) (*icebin_error)(-1,
+        "ice_ovalsI <%p> != emI_land <%p>\n", &ice_ovalsI(emI_land_ix,0), &out_emI_land(0));
+
+    emI_ice = out_emI_ice;    // Copy
+    emI_land = out_emI_land;    // Copy
+ 
     printf("END IceCoupler::model_start \n");
 }
 
@@ -382,6 +397,8 @@ bool run_ice)
     std::unique_ptr<SparseSetT> dimE1(new SparseSetT(gcmr->nE()));
     auto E1vI_unscaled_nc(rm->matrix_d("EvI", {&*dimE1, &dimI},
         RegridParams(false, false, {0,0,0})));    // scale=f, correctA=f
+    printf("BdimE1-> dense_extent %d\n", dimE1->dense_extent());
+    printf("BdimE1-> sparse_extent %d\n", dimE1->sparse_extent());
 
     // ========= Compute gcm_ivalsE
     SparseSetT dimA1;

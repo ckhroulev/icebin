@@ -576,6 +576,73 @@ void gcmce_io_rsf(GCMCoupler_ModelE *self,
 // ===========================================================
 // Called from LISheetIceBin::model_start()
 
+void GCMCoupler_ModelE::init_focean(){
+    
+     printf("topoO_fname=%s\n",topoO_fname.c_str()); 
+   
+     GCMRegridder_WrapE *gcmW(
+        dynamic_cast<GCMRegridder_WrapE *>(&*gcm_regridder));
+     GCMRegridder_ModelE const *gcmA(gcmW->gcmA.get());
+
+   ibmisc::ArrayBundle<double,2> topoo(topoo_bundle(BundleOType::MERGEO, topoO_fname));
+        auto &foceanOp(topoo.array("FOCEANF"));
+        auto &foceanOm(topoo.array("FOCEAN"));
+        auto &fgiceOp(topoo.array("FGICEF"));
+        auto &zatmoOp(topoo.array("ZATMOF"));
+        auto &flakeOm(topoo.array("FLAKE"));
+        auto &fgrndOm(topoo.array("FGRND"));
+        auto &fgiceOm(topoo.array("FGICE"));
+        auto &zatmoOm(topoo.array("ZATMO"));
+        auto &zlakeOm(topoo.array("ZLAKE"));
+        auto &zicetopO(topoo.array("ZICETOP"));
+        auto &zland_minO(topoo.array("ZLAND_MIN"));
+        auto &zland_maxO(topoo.array("ZLAND_MAX"));
+        blitz::Array<int16_t,2> mergemaskO(zicetopO.extent());
+
+    std::vector<std::string> errors;
+
+        std::vector<blitz::Array<double,1>> emI_lands, emI_ices;
+        emI_ices.reserve(ice_couplers.size());
+        emI_lands.reserve(ice_couplers.size());
+        for (size_t sheetix=0; sheetix < ice_couplers.size(); ++sheetix) {
+            auto &ice_coupler(ice_couplers[sheetix]);
+
+            emI_ices.push_back(ice_coupler->emI_ice);
+            emI_lands.push_back(ice_coupler->emI_land);
+
+            auto emI_ice(ice_coupler->emI_ice);
+	    printf("emI_ice.size() %d\n",emI_ice.size() );
+	    double sum2 = 0;
+	    for (int i=0; i<emI_ice.size(); ++i) {
+		auto val2(emI_ice(i));
+		if (!std::isnan(val2)){
+		sum2 = sum2 + val2;
+		}
+	       }
+	      printf("sum emI_ice= %g\n",sum2);
+            }
+
+
+
+  
+    // ------------------ Create merged TOPOO file (in RAM)
+    // We need correctA=true here to get FOCEANF, etc.
+    // merge_topoO() merges PISM ice sheets (emI_ices, etc) into foceanOp / foceanOm
+    merge_topoO(
+        foceanOp, fgiceOp, zatmoOp,  // Our own bundle
+        foceanOm, flakeOm, fgrndOm, fgiceOm, zatmoOm, zicetopO,
+        zland_minO, zland_maxO, mergemaskO, &*gcmA->gcmO,
+        RegridParams(false, true, {0.,0.,0.}),  // (scale, correctA, sigma)
+        emI_lands, emI_ices, gcmA->specO().eq_rad, errors);
+
+
+    // Copy FOCEAN to internal GCMRegridder_WrapE w
+    gcmW->foceanOp = reshape1(foceanOp);
+    gcmW->foceanOm = reshape1(foceanOm);
+
+
+}
+
 extern "C"
 void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int itimei, double dtsrc)
 {
@@ -593,16 +660,20 @@ void gcmce_model_start(GCMCoupler_ModelE *self, bool cold_start, int yeari, int 
     //       in the initial conditions TOPO file loaded by ModelE
     // b) Compute fhc, elevE
     // c) Compute ZATMO, FGICE, etc.
-    //    self->update_topo(time_s);    // initial_timestep=true
+    //self->update_topo(time_s);    // initial_timestep=true
 
-
-    if (cold_start) {
+  if (cold_start) {
         printf("! LR gcmce_couple_native with runice=false\n");
         // d) Sync with dynamic ice model
         // This receives info back from ice model
         // (for warm start, the infor was already saved in a restart file)
         gcmce_couple_native(self, itimei, false,    // run_ice=false
             nullptr, nullptr, nullptr);    // !run_ice ==> no E1vE0c to return
+    } else {
+   printf("Now call init_focean\n"); 
+   self->init_focean();
+
+
     }
 
     printf("END gcmce_model_start()\n");
@@ -845,7 +916,7 @@ printf("domainA size=%ld base_hc=%d  nhc_ice=%d\n", domainA.data.size(), base_hc
 
 
     }
-printf("END gcmce_couple_native on GCMCoupler_ModelE");
+printf("END gcmce_couple_native on GCMCoupler_ModelE\n");
 } 
 // =======================================================
 
@@ -1207,8 +1278,9 @@ bool run_ice)    // if false, only initialize
 {
     printf("BEGIN GCMCoupler_ModelE::couple()\n");
     // Call superclass coupling for starters
-    printf("GCMCoupler_ModelE::couple time_s = %d \n",time_s);
+    printf("GCMCoupler_ModelE::couple time_s = %dg run_ice=%c \n",time_s, run_ice);
     GCMInput out(this->GCMCoupler::couple(time_s, gcm_ovalsE, run_ice));
+    printf("Returned from GCMCoupler_ModelE::couple \n");
 
     // Nothing more to do unless we're root
     if (!gcm_params.am_i_root()) return out;
@@ -1225,7 +1297,7 @@ bool run_ice)    // if false, only initialize
             emI_ices.push_back(ice_coupler->emI_ice);
             emI_lands.push_back(ice_coupler->emI_land);
         }
-
+       printf("Now call update_topo with run_ice=%d\n",run_ice);
         update_topo(time_s, run_ice, emI_lands, emI_ices, out, wEAm_base);
     }
 

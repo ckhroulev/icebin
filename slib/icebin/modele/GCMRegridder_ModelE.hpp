@@ -242,7 +242,7 @@ public:
     std::unique_ptr<RegridMatrices_Dynamic> regrid_matrices(
         int sheet_index,
         blitz::Array<double,1> const &elevmaskI,
-        RegridParams const &params = RegridParams()) const
+        RegridParams const &params = RegridParams()) const //default params
     {
         return gcmA->regrid_matrices(sheet_index,
             foceanOp, foceanOm,

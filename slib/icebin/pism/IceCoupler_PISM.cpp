@@ -293,6 +293,8 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     log->message(3, "* Setting the computational grid...\n");
     pism_grid = IceGrid::FromOptions(ctx);
+    printf("time_start_s from fn input%f\n",time_start_s);
+    printf("gcm_coupler->time_start_s = %f\n",gcm_coupler->time_start_s);
 
     pism::icebin::IBIceModel::Params params;
         params.time_start_s = gcm_coupler->time_start_s;
@@ -529,20 +531,21 @@ void IceCoupler_PISM::run_timestep(double time_s,
         // -------- Figure out the timestep
         printf("Now write pism-in\n");
         pism_in_nc->write(time_s);
-        pism_ice_model->dumpToFile("dump_pism_A.nc");
 
         // =========== Run PISM for one coupling timestep
         // Time of last time we coupled
         //auto time0(pism_grid->ctx()->time()->current());
         // LR temporary fix
-        double time0 = time_s - 86400;
+        //double time0 = time_s - 86400;
+        auto time0(pism_grid->ctx()->time()->current());
+        printf("time0 = %f\n", time0);
         printf("BEGIN pism_ice_model->run_to(%f -> %f) %p\n",
             time0, time_s, pism_ice_model.get());
         // See pism::icebin::IBIceModel::run_to()
         pism_ice_model->run_to(time_s);
         printf("END pism_ice_model->run_to()\n");
         auto time1(pism_grid->ctx()->time()->current());
-
+        printf("time1 = %f\n", time1);
 
         if ((pism_ice_model->mass_t() != time_s) || (pism_ice_model->enthalpy_t() != time_s) || (time1 != time_s)) {
             (*icebin_error)(-1,
@@ -553,7 +556,6 @@ void IceCoupler_PISM::run_timestep(double time_s,
         pism_ice_model->set_rate(time1 - time0);
     }    // if run_ice
 
-    pism_ice_model->dumpToFile("dump_pism_B.nc");
     pism_ice_model->prepare_outputs(time_s);
 
     printf("Now write pism-out\n");
