@@ -109,7 +109,7 @@ double const eq_rad,    // Radius of the earth
 std::vector<std::string> &errors)
 {
 printf("BEGIN merge_topoO\n");
-//if 0
+#if 0
 // Log inputs for debugging
 {
     auto &indexing(gcmO->ice_regridders()[0]->agridI.indexing);
@@ -138,7 +138,7 @@ printf("BEGIN merge_topoO\n");
     ncio_blitz(ncio, emI_ice2, "emI_ice", "double", dimsI);
     ncio.flush();
 }
-//#endif
+#endif
 
     mergemaskOm2 = 0;
 
@@ -336,7 +336,7 @@ printf("BEGIN merge_topoO\n");
         }
     }
 
-//#if 0
+#if 0
 // Log outputs for debugging
 {
     printf("now write merge_topoO-out.nc\n");
@@ -357,7 +357,7 @@ printf("BEGIN merge_topoO\n");
 
     ncio.flush();
 }
-//#endif
+#endif
 
 printf("END merge_topoO\n");
 }

@@ -355,17 +355,19 @@ bool run_ice)
 
         // ========= Step the ice model forward
         if (writer[INPUT].get()) {
+            if (run_ice) { 
             // writing icemodel-in
             printf("Now write icemodel-in\n");
             writer[INPUT]->write(time_s, ice_ivalsI);
-        }
+        }}
         ice_ovalsI = 0;
         run_timestep(time_s, ice_ivalsI, ice_ovalsI, run_ice);
         if (writer[OUTPUT].get()) {
+            if (run_ice) { 
             // writing icemodel-out
             printf("Now write icemodel-out\n");
             writer[OUTPUT]->write(time_s, ice_ovalsI);
-        }
+        }}
     }
 
     // ========== Update regridding matrices

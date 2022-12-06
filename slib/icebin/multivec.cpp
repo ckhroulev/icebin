@@ -45,8 +45,9 @@ void VectorMultivec::to_dense_scale(blitz::Array<double,1> &scaleE) const
         scaleE(iE) += this->weights[i];
     }
 
-    for (int iE=0; iE<nE; ++iE)
-        scaleE(iE) = 1. / scaleE(iE);
+    for (int iE=0; iE<nE; ++iE) {
+        if (scaleE(iE) != 0) scaleE(iE) = 1. / scaleE(iE);
+	}
 }
 
 

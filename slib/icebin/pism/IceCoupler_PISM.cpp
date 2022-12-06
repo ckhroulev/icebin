@@ -560,7 +560,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
 
     printf("Now write pism-out\n");
     pism_out_nc->write(time_s);    // Writes from PISM-format variables on I grid
-
+    printf("Now call get_state\n");
     get_state(ice_ovalsI, run_ice ? 0 : contracts::INITIAL);
 
     pism_ice_model->reset_rate();
