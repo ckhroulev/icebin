@@ -782,7 +782,7 @@ int *E1vE0c_nele)
 {
     printf("BEGIN gcmce_couple_native on GCMCoupler_ModelE\n");
     double time_s = itime * self->dtsrc;
-    printf("! LR icebin itime %f\n",itime);
+    printf("! LR icebin itime %d\n",itime);
     printf("! LR icebin dtsrc %f\n",self->dtsrc);
     printf("! LR icebin time_s %f\n",time_s);
 
@@ -1304,12 +1304,13 @@ bool run_ice)    // if false, only initialize
 
     // Log the results
     if (gcm_params.icebin_logging) {
+        printf("Now write gcm-in %s %g\n",(sdate(time_s)).c_str(), time_s);
         std::string fname = "gcm-in-" + sdate(time_s) + ".nc";
-        if (!run_ice) {fname = "gcm-in-A-init.nc";} 
         NcIO ncio(fname, 'w');
         auto one_dims(get_or_add_dims(ncio, {"one"}, {1}));
         NcVar info_var = get_or_add_var(ncio, "info", ibmisc::get_nc_type<double>(), one_dims);
         info_var.putAtt("notes", "Elevation classes (HC) are just those known to IceBin.  No legacy or sea-land elevation classes included.");
+        printf("timespan = %g %g \n",timespan[0],timespan[1]);
         ncio_gcm_input(ncio, out, timespan, time_unit, "");
         ncio();
     }

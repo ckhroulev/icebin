@@ -180,7 +180,7 @@ void IceCoupler_PISM::_model_start(
     double time_start_s,
     blitz::Array<double,2> &ice_ovalsI)    // ice_ovalsI(nvar, nI)
 {
-    printf("BEGIN IceCouple_PISM::_model_start()\n");
+    printf("BEGIN IceCouple_PISM::_model_start %f %i\n",time_start_s,cold_start);
 
     // Overrides for PISM command line
     std::map<std::string, std::string> overrides;
@@ -283,6 +283,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     ibmisc::Datetime const &tb(gcm_coupler->time_base);
     std::string reference_date = (boost::format("%04d-%02d-%02d") % tb.year() % tb.month() % tb.day()).str();
     config->set_string("time.reference_date", reference_date);
+    printf("Reference year %i \n",tb.year());
     // ------------------------------ //
 
 #if 0    // Don't bother with profiling inside of GCM
@@ -293,7 +294,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     log->message(3, "* Setting the computational grid...\n");
     pism_grid = IceGrid::FromOptions(ctx);
-    printf("time_start_s from fn input%f\n",time_start_s);
+    printf("time_start_s from fn input = %f\n",time_start_s);
     printf("gcm_coupler->time_start_s = %f\n",gcm_coupler->time_start_s);
 
     pism::icebin::IBIceModel::Params params;
@@ -420,6 +421,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // -------------- Initialize pism-out.nc
     {
+        printf("Initialize pism-out.nc \n");
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-out.nc").string();
 
@@ -437,6 +439,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // ------------- Initialize pism-in.nc
     {
+	printf("Initialize pism-in \n");
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-in.nc").string();
         std::vector<pism::IceModelVec const *> vecs;
@@ -529,7 +532,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
         }
 
         // -------- Figure out the timestep
-        printf("Now write pism-in\n");
+        printf("Now write pism-in at %g\n",time_s);
         pism_in_nc->write(time_s);
 
         // =========== Run PISM for one coupling timestep

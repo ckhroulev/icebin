@@ -357,7 +357,7 @@ bool run_ice)
         if (writer[INPUT].get()) {
             if (run_ice) { 
             // writing icemodel-in
-            printf("Now write icemodel-in\n");
+            printf("Now write icemodel-in %g\n",time_s);
             writer[INPUT]->write(time_s, ice_ivalsI);
         }}
         ice_ovalsI = 0;
@@ -365,7 +365,7 @@ bool run_ice)
         if (writer[OUTPUT].get()) {
             if (run_ice) { 
             // writing icemodel-out
-            printf("Now write icemodel-out\n");
+            printf("Now write icemodel-out %g\n",time_s);
             writer[OUTPUT]->write(time_s, ice_ovalsI);
         }}
     }
