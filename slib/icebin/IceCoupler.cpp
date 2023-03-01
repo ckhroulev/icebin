@@ -474,7 +474,8 @@ bool run_ice)
         // Regrid while recombining variables
         // (Do not need to use Weighted_Eigen::apply(), since this is not IvE)
         EigenDenseMatrixT gcm_ivalsX((*AE1vIs[iAE]->M) * (
-            ice_ovalsI_e * gcmi_v_iceo_T.M + gcmi_v_iceo_T.b.replicate(nI(),1) ));
+	    ice_ovalsI_e * gcmi_v_iceo_T.M.topRows(25) + gcmi_v_iceo_T.b.replicate(nI(),1) ));
+
         // Sparsify while appending to the global VectorMultivec
         // (Transposes order in memory)
         std::vector<double> vals(gcm_ivalss_s[iAE].nvar);
