@@ -342,7 +342,8 @@ bool run_ice)
     // NOTE: by_dt=inf on the first call (run_ice=false)
     //       Should be OK because output variables that depend on by_dt
     //       are not needed on the first call.
-    double const dt = timespan[1] - timespan[0];
+    double dt = timespan[1] - timespan[0];
+    if (dt == 0) { dt = 1; }
     printf("dt = %f \n",dt);
     std::vector<std::pair<std::string, double>> scalars({
         std::make_pair("by_dt", 1.0 / dt)});
