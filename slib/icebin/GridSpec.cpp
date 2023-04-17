@@ -1,5 +1,6 @@
 #include <icebin/GridSpec.hpp>
 #include <ibmisc/netcdf.hpp>
+#include <algorithm>
 
 using namespace netCDF;
 using namespace ibmisc;
