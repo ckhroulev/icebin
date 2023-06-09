@@ -1278,7 +1278,7 @@ bool run_ice)    // if false, only initialize
 {
     printf("BEGIN GCMCoupler_ModelE::couple()\n");
     // Call superclass coupling for starters
-    printf("GCMCoupler_ModelE::couple time_s = %dg run_ice=%c \n",time_s, run_ice);
+    printf("GCMCoupler_ModelE::couple time_s = %d run_ice=%d \n",time_s, run_ice);
     GCMInput out(this->GCMCoupler::couple(time_s, gcm_ovalsE, run_ice));
     printf("Returned from GCMCoupler_ModelE::couple \n");
 
