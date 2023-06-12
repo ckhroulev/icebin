@@ -26,8 +26,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
-#include <pism/base/stressbalance/PISMStressBalance.hh>
-#include <pism/earth/PISMBedDef.hh>
+#include <pism/stressbalance/StressBalance.hh>
+#include <pism/earth/BedDef.hh>
 
 #include <ibmisc/netcdf.hpp>
 #include <ibmisc/ibmisc.hpp>

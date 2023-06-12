@@ -22,23 +22,23 @@
 // PISM Includes... want to be included first
 #include <petsc.h>
 #include <petscvec.h>
-#include <pism/base/util/Context.hh>
-#include <pism/base/util/IceGrid.hh>
-#include <pism/base/util/iceModelVec.hh>
-#include <pism/base/iceModel.hh>
+#include <pism/util/Context.hh>
+#include <pism/util/IceGrid.hh>
+#include <pism/util/iceModelVec.hh>
+#include <pism/icemodel/IceModel.hh>
 
-#include <pism/base/util/pism_options.hh>
-#include <pism/coupler/atmosphere/PAFactory.hh>
-#include <pism/coupler/ocean/POFactory.hh>
-#include <pism/coupler/surface/PSFactory.hh>
+#include <pism/util/pism_options.hh>
+#include <pism/coupler/atmosphere/Factory.hh>
+#include <pism/coupler/ocean/Factory.hh>
+#include <pism/coupler/surface/Factory.hh>
 
-#include <pism/base/util/PISMTime.hh>
+#include <pism/util/Time.hh>
 
 #include <pism/icebin/IBIceModel.hh>
 #include <pism/icebin/VecBundleWriter.hh>
 #include <pism/icebin/IBSurfaceModel.hh>
-#include <pism/base/util/petscwrappers/PetscInitializer.hh>
-#include <pism/base/util/petscwrappers/Vec.hh>
+#include <pism/util/petscwrappers/PetscInitializer.hh>
+#include <pism/util/petscwrappers/Vec.hh>
 // --------------------------------
 #include <mpi.h>
 #include <icebin/GCMCoupler.hpp>
