@@ -39,6 +39,30 @@ if (BUILD_GRIDGEN)
     add_definitions(-DBUILD_GRIDGEN)
 endif()
 
+macro(icebin_find_petsc)
+  find_package(PkgConfig REQUIRED)
+
+  message(STATUS
+    "Looking for PETSc (PETSC_DIR='$ENV{PETSC_DIR}', PETSC_ARCH='$ENV{PETSC_ARCH}')...")
+  list(APPEND CMAKE_PREFIX_PATH $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
+
+  pkg_search_module(PETSC IMPORTED_TARGET "PETSc>=3.7.0")
+
+  if (NOT PETSC_FOUND)
+    # If PETSc was configured with --prefix=... then PETSC_ARCH is irrelevant and we
+    # should ignore it.
+    message(STATUS
+      "Looking for PETSc (PETSC_DIR=$ENV{PETSC_DIR} ignoring PETSC_ARCH...)")
+    list(APPEND CMAKE_PREFIX_PATH $ENV{PETSC_DIR})
+    pkg_search_module(PETSC REQUIRED IMPORTED_TARGET "PETSc>=3.7.0")
+  endif()
+
+  if (PETSC_FOUND)
+    message(STATUS "Found PETSc ${PETSC_VERSION} in ${PETSC_PREFIX}")
+  endif()
+endmacro()
+
+
 if (NOT DEFINED BUILD_COUPLER)
     set(BUILD_COUPLER YES)
 endif()
@@ -52,12 +76,12 @@ if (BUILD_COUPLER)
     endif()
     if(USE_PISM)
         find_package(PISM)
-        find_package(PETSc)
+        icebin_find_petsc()
         include_directories(
             ${PISM_INCLUDE_DIRS}
-            ${PETSC_INCLUDES}
+            ${PETSC_INCLUDE_DIRS}
         )
-        list(APPEND EXTERNAL_LIBS ${PETSC_LIBRARIES} ${PISM_LIBRARIES})
+        list(APPEND EXTERNAL_LIBS PkgConfig::PETSC ${PISM_LIBRARIES})
 
         add_definitions(-DUSE_PISM)
     endif()
