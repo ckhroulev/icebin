@@ -3,6 +3,12 @@ project (GLINT2)
 enable_language(Fortran)
 set(CMAKE_CXX_STANDARD 14)
 
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.12"))
+  # Policy CMP0074 was introduced in 3.12. See "cmake --help-policies" for details.
+  # use PackageName_ROOT variables
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include (setup_rpath)
 message("TRANSITIVE $ENV{SPACK_TRANSITIVE_INCLUDE_PATH}")
