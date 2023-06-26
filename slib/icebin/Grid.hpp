@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <algorithm>            // std::sort
 #include <vector>
 #include <unordered_map>
 #include <functional>

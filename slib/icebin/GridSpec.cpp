@@ -1,3 +1,5 @@
+#include <algorithm>            // std::sort
+
 #include <icebin/GridSpec.hpp>
 #include <ibmisc/netcdf.hpp>
 #include <algorithm>
