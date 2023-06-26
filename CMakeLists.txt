@@ -33,6 +33,10 @@ if (BUILD_GRIDGEN)
     find_package(GMP REQUIRED)
     find_package(MPFR REQUIRED)
 
+    # tools in gridgen/ use TCLAP
+    find_package(TCLAP REQUIRED)
+    include_directories(${TCLAP_INCLUDE_DIR})
+
     list(APPEND EXTERNAL_LIBS ${CGAL_LIBRARY} ${GMP_LIBRARY} ${MPFR_LIBRARIES})
     list(APPEND Boost_COMPONENTS thread system program_options mpi serialization )
     include_directories(${CGAL_INCLUDE_DIRS} ${GMP_INCLUDE_DIR} ${MPFR_INCLUDES})
