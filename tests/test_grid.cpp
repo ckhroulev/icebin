@@ -27,13 +27,13 @@
 #include <icebin/gridgen/GridGen_LonLat.hpp>
 #ifdef BUILD_MODELE
 #include <icebin/modele/clippers.hpp>
+using namespace icebin::modele;
 #endif
 
 using namespace std::placeholders;  // for _1, _2, _3...
 using namespace ibmisc;
 using namespace icebin;
 using namespace netCDF;
-using namespace icebin::modele;
 
 #if 0
 bool operator==(Vertex const &a, Vertex const &b)
