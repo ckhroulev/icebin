@@ -35,7 +35,7 @@ if (BUILD_GRIDGEN)
 
     list(APPEND EXTERNAL_LIBS ${CGAL_LIBRARY} ${GMP_LIBRARY} ${MPFR_LIBRARIES})
     list(APPEND Boost_COMPONENTS thread system program_options mpi serialization )
-    include_directories(${CGAL_INCLUDE_DIR} ${GMP_INCLUDE_DIR} ${MPFR_INCLUDES})
+    include_directories(${CGAL_INCLUDE_DIRS} ${GMP_INCLUDE_DIR} ${MPFR_INCLUDES})
     add_definitions(-DBUILD_GRIDGEN)
 endif()
 
