@@ -106,12 +106,12 @@ public:
 private:
     // Stuff used for Scatter/Gather
     std::shared_ptr<pism::IceModelVec2S> vtmp;
-    pism::petsc::Vec::Ptr vtmp_p0;
+    std::shared_ptr<pism::petsc::Vec> vtmp_p0;
     // (probably obsolete...)
     pism::petsc::DM::Ptr da2;
     Vec g2, g2natural;  //!< global Vecs used to transfer data to/from processor 0.
     VecScatter scatter; //!< VecScatter used to transfer data to/from processor 0.
-    pism::petsc::Vec::Ptr Hp0;            //!< Resulting vector on process 0
+    std::shared_ptr<pism::petsc::Vec> Hp0;            //!< Resulting vector on process 0
 
     // Corresponding PISM variable for each input field
     std::vector<pism::IceModelVec2S *> pism_ivars;
