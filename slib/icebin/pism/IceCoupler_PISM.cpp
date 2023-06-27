@@ -366,8 +366,8 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
 
     // Initialize scatter/gather stuff
-    vtmp.create(pism_grid, "vtmp", WITHOUT_GHOSTS);
-    vtmp_p0 = vtmp.allocate_proc0_copy();
+    vtmp = std::make_shared<pism::IceModelVec2S>(pism_grid, "vtmp", pism::WITHOUT_GHOSTS);
+    vtmp_p0 = vtmp->allocate_proc0_copy();
 
     // Initialize scatter/gather stuff (probably obsolete)
     da2 = pism_grid->get_dm(1, // dm_dof

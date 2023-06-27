@@ -105,7 +105,7 @@ public:
 
 private:
     // Stuff used for Scatter/Gather
-    pism::IceModelVec2S vtmp;
+    std::shared_ptr<pism::IceModelVec2S> vtmp;
     pism::petsc::Vec::Ptr vtmp_p0;
     // (probably obsolete...)
     pism::petsc::DM::Ptr da2;
