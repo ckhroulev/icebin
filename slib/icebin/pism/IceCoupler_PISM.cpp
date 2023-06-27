@@ -58,7 +58,7 @@ void IceCoupler_PISM::ncread(ibmisc::NcIO &ncio_config, std::string const &vname
 {
     IceCoupler::ncread(ncio_config, vname_sheet);
 
-    printf("BEGIN IceCoupler_PISM::ncread(%s)\n", vname_sheet.c_str());
+    ::printf("BEGIN IceCoupler_PISM::ncread(%s)\n", vname_sheet.c_str());
     GCMParams const &_gcm_params(gcm_coupler->gcm_params);
 
     this->icebin_specI = ice_regridder ?
@@ -75,7 +75,7 @@ void IceCoupler_PISM::ncread(ibmisc::NcIO &ncio_config, std::string const &vname
     NcVar pism_var(ncio_config.nc->getVar(vname_sheet + ".pism"));
     pism_args.ncread(pism_var);
 
-    printf("END IceCoupler_PISM::ncread()\n");
+    ::printf("END IceCoupler_PISM::ncread()\n");
 }
 // ======================================================================
 void PISMArgs::ncread(NcVar const &pism_var)
@@ -90,7 +90,7 @@ void PISMArgs::ncread(NcVar const &pism_var)
 #endif
 
 #if PETSC_VERSION_LT(3,7,0)
-    printf("Doing -no_signal_handler on command line\n");
+    ::printf("Doing -no_signal_handler on command line\n");
     // cmd0.push_back("-no_signal_handler");  // alternate way to do the same thing
     cmd0.push_back("-signal_handler");
     cmd0.push_back("off");
@@ -168,11 +168,11 @@ ArgcArgv::ArgcArgv(std::vector<std::string> const &args)
     }
     argv = &_argv[0];
 
-printf("*** PISM Args:");
+::printf("*** PISM Args:");
 for (int i=0; i<argc; ++i) {
-    printf(" %s", argv[i]);
+    ::printf(" %s", argv[i]);
 }
-printf("\n");
+::printf("\n");
 }
 // ======================================================================
 void IceCoupler_PISM::_model_start(
@@ -181,7 +181,7 @@ void IceCoupler_PISM::_model_start(
     double time_start_s,
     blitz::Array<double,2> &ice_ovalsI)    // ice_ovalsI(nvar, nI)
 {
-    printf("BEGIN IceCouple_PISM::_model_start %f %i\n",time_start_s,cold_start);
+    ::printf("BEGIN IceCouple_PISM::_model_start %f %i\n",time_start_s,cold_start);
 
     // Overrides for PISM command line
     std::map<std::string, std::string> overrides;
@@ -198,7 +198,7 @@ void IceCoupler_PISM::_model_start(
     ierr = MPI_Comm_rank(pism_comm, &_pism_rank); PISM_CHK(ierr, "MPI_Comm_rank");
     ierr = MPI_Comm_size(pism_comm, &_pism_size); PISM_CHK(ierr, "MPI_Comm_size");
 
-printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
+::printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // -------------- Initialize Petsc
     // From personal correspondence with Barry Smith <bsmith@mcs.anl.gov>
@@ -237,7 +237,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     // PetscInitialization() default actions without requiring using
     // the command line.
 
-    printf("Doing -no_signal_handler as PetscOptionsSetValue()\n");
+    ::printf("Doing -no_signal_handler as PetscOptionsSetValue()\n");
     PetscOptionsSetValue(NULL, "-no_signal_handler", "true");
 #endif
 
@@ -284,7 +284,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     ibmisc::Datetime const &tb(gcm_coupler->time_base);
     std::string reference_date = (boost::format("%04d-%02d-%02d") % tb.year() % tb.month() % tb.day()).str();
     config->set_string("time.reference_date", reference_date);
-    printf("Reference year %i \n",tb.year());
+    ::printf("Reference year %i \n",tb.year());
     // ------------------------------ //
 
 #if 0    // Don't bother with profiling inside of GCM
@@ -295,8 +295,8 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     log->message(3, "* Setting the computational grid...\n");
     pism_grid = IceGrid::FromOptions(ctx);
-    printf("time_start_s from fn input = %f\n",time_start_s);
-    printf("gcm_coupler->time_start_s = %f\n",gcm_coupler->time_start_s);
+    ::printf("time_start_s from fn input = %f\n",time_start_s);
+    ::printf("gcm_coupler->time_start_s = %f\n",gcm_coupler->time_start_s);
 
     pism::icebin::IBIceModel::Params params;
         params.time_start_s = gcm_coupler->time_start_s;
@@ -422,7 +422,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // -------------- Initialize pism-out.nc
     {
-        printf("Initialize pism-out.nc \n");
+        ::printf("Initialize pism-out.nc \n");
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-out.nc").string();
 
@@ -440,7 +440,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // ------------- Initialize pism-in.nc
     {
-	printf("Initialize pism-in \n");
+	::printf("Initialize pism-in \n");
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-in.nc").string();
         std::vector<pism::IceModelVec const *> vecs;
@@ -470,7 +470,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     // Fill in ice_ovalsI
     get_state(ice_ovalsI, contracts::INITIAL);
 
-    printf("END IceCoupler_PISM::_model_start()\n");
+    ::printf("END IceCoupler_PISM::_model_start()\n");
 }
 
 void IceCoupler_PISM::run_timestep(double time_s,
@@ -480,8 +480,8 @@ void IceCoupler_PISM::run_timestep(double time_s,
 {
     PetscErrorCode ierr;
 
-    printf("BEGIN IceCoupler_PISM::run_timestep()\n");
- 
+    ::printf("BEGIN IceCoupler_PISM::run_timestep()\n");
+
     // ----------- Bounds Checking
     // Check dimensions
     std::array<long,5> extents0{
@@ -533,7 +533,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
         }
 
         // -------- Figure out the timestep
-        printf("Now write pism-in at %g\n",time_s);
+        ::printf("Now write pism-in at %g\n",time_s);
         pism_in_nc->write(time_s);
 
         // =========== Run PISM for one coupling timestep
@@ -542,14 +542,14 @@ void IceCoupler_PISM::run_timestep(double time_s,
         // LR temporary fix
         //double time0 = time_s - 86400;
         auto time0(pism_grid->ctx()->time()->current());
-        printf("time0 = %f\n", time0);
-        printf("BEGIN pism_ice_model->run_to(%f -> %f) %p\n",
+        ::printf("time0 = %f\n", time0);
+        ::printf("BEGIN pism_ice_model->run_to(%f -> %f) %p\n",
             time0, time_s, pism_ice_model.get());
         // See pism::icebin::IBIceModel::run_to()
         pism_ice_model->run_to(time_s);
-        printf("END pism_ice_model->run_to()\n");
+        ::printf("END pism_ice_model->run_to()\n");
         auto time1(pism_grid->ctx()->time()->current());
-        printf("time1 = %f\n", time1);
+        ::printf("time1 = %f\n", time1);
 
         if ((pism_ice_model->mass_t() != time_s) || (pism_ice_model->enthalpy_t() != time_s) || (time1 != time_s)) {
             (*icebin_error)(-1,
@@ -562,13 +562,13 @@ void IceCoupler_PISM::run_timestep(double time_s,
 
     pism_ice_model->prepare_outputs(time_s);
 
-    printf("Now write pism-out\n");
+    ::printf("Now write pism-out\n");
     pism_out_nc->write(time_s);    // Writes from PISM-format variables on I grid
-    printf("Now call get_state\n");
+    ::printf("Now call get_state\n");
     get_state(ice_ovalsI, run_ice ? 0 : contracts::INITIAL);
 
     pism_ice_model->reset_rate();
-    printf("END IceCoupler_PISM::run_timestep()\n");
+    ::printf("END IceCoupler_PISM::run_timestep()\n");
 }
 
 /** Read/write state for restart file */
@@ -589,7 +589,7 @@ void IceCoupler_PISM::get_state(
     blitz::Array<double,2> &ice_ovalsI,    // ice_ovalsI(nvar, nI)
     unsigned int mask)
 {
-    printf("BEGIN IceCoupler_PISM::get_state: %ld (mask = %d)\n", pism_ovars.size(), mask);
+    ::printf("BEGIN IceCoupler_PISM::get_state: %ld (mask = %d)\n", pism_ovars.size(), mask);
     VarSet const &ocontract(contract[IceCoupler::OUTPUT]);
 
     // Copy the outputs to the blitz arrays
@@ -604,7 +604,7 @@ void IceCoupler_PISM::get_state(
 
         if ((cf.flags & mask) != mask) continue;
 
-        printf("IceCoupler_PISM::get_state(mask=%d) copying field %s\n", mask, cf.name.c_str());
+        ::printf("IceCoupler_PISM::get_state(mask=%d) copying field %s\n", mask, cf.name.c_str());
 
         if (am_i_root()) {      // ROOT in PISM communicator
             // Get matching input (val) and output (pism_var) variables
@@ -622,7 +622,7 @@ void IceCoupler_PISM::get_state(
         if (pism_root != gcm_coupler->gcm_params.gcm_root) (*icebin_error)(-1,
             "PISM and the GCM must share the same root!");
     }
-    printf("END IceCoupler_PISM::get_state\n");
+    ::printf("END IceCoupler_PISM::get_state\n");
 }
 
 
@@ -724,7 +724,7 @@ void IceCoupler_PISM::transfer_constant(std::string const &dest, std::string con
     // Discover the units PISM requires.
     std::string units = pism_config()->get_string(dest + "_units");
     double val = gcm_coupler->gcm_constants.get_as(src, units) * multiply_by;
-printf("IceCoupler_PISM::transfer_constant: %s = %g [%s] (from %s in GCM)\n", dest.c_str(), val, units.c_str(), src.c_str());
+::printf("IceCoupler_PISM::transfer_constant: %s = %g [%s] (from %s in GCM)\n", dest.c_str(), val, units.c_str(), src.c_str());
     pism_config()->set_number(dest, val);
 
 
@@ -749,7 +749,7 @@ void IceCoupler_PISM::set_constant(std::string const &dest, double src_val, std:
     double dest_val = cv.convert(src_val);
 
     pism_config()->set_number(dest, dest_val);
-    printf("IceCoupler_PISM::transfer_constant: %s = %g %s (from %s in GCM)\n", dest.c_str(), dest_val, dest_units.c_str(), usrc.c_str());
+    ::printf("IceCoupler_PISM::transfer_constant: %s = %g %s (from %s in GCM)\n", dest.c_str(), dest_val, dest_units.c_str(), usrc.c_str());
 }
 
 
