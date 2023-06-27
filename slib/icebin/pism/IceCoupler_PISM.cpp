@@ -393,14 +393,14 @@ void IceCoupler_PISM::_model_start(
     // -------------- Link to PISM-format output variables, used to fill ovars
     pism_ovars.resize(contract[OUTPUT].size(), NULL);
     ix = contract[OUTPUT].index.at("ice_top_elevation");       // Elevation of top surface of ice sheet
-        pism_ovars[ix] = &pism_ice_model->ice_surface_elevation(); // see PISM's iceModel.hh
+    pism_ovars[ix] = &pism_ice_model->geometry().ice_surface_elevation;
     ix = contract[OUTPUT].index.at("ice_thickness");
-        pism_ovars[ix] = &pism_ice_model->ice_thickness();
+    pism_ovars[ix] = &pism_ice_model->geometry().ice_thickness;
     ix = contract[OUTPUT].index.at("bed_topography");
-        pism_ovars[ix] = &pism_ice_model->bed_model()->bed_elevation();
+    pism_ovars[ix] = &pism_ice_model->geometry().bed_elevation;
 
     ix = contract[OUTPUT].index.at("mask");
-        pism_ovars[ix] = &pism_ice_model->cell_type();
+    pism_ovars[ix] = &pism_ice_model->geometry().cell_type;
 
     ix = contract[OUTPUT].index.at("elevmask_ice");
         pism_ovars[ix] = &pism_ice_model->elevmask_ice;
