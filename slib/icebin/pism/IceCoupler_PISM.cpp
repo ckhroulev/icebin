@@ -246,8 +246,8 @@ void IceCoupler_PISM::_model_start(
     // ------------------------------------
 
     // verbosityLevelFromOptions();    // https://github.com/pism/pism/commit/3c75fd63
-    Context::Ptr ctx = context_from_options(pism_comm, "IceCoupler_PISM");
-    Logger::Ptr log = ctx->log();
+    auto ctx = context_from_options(pism_comm, "IceCoupler_PISM");
+    auto log = ctx->log();
 
     log->message(2, "IceBin %s (GCM Coupler)\n",
                  pism::revision);
