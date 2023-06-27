@@ -370,7 +370,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
 
     // Initialize scatter/gather stuff (probably obsolete)
     da2 = pism_grid->get_dm(1, // dm_dof
-        pism_grid->ctx()->config()->get_double("grid.max_stencil_width"));
+        pism_grid->ctx()->config()->get_number("grid.max_stencil_width"));
 
     ierr = DMCreateGlobalVector(*da2, &g2); PISM_CHK(ierr, "DMCreateGlobalVector");
 
@@ -723,8 +723,8 @@ void IceCoupler_PISM::transfer_constant(std::string const &dest, std::string con
     // Discover the units PISM requires.
     std::string units = pism_config()->get_string(dest + "_units");
     double val = gcm_coupler->gcm_constants.get_as(src, units) * multiply_by;
-    pism_config()->set_double(dest, val);
 printf("IceCoupler_PISM::transfer_constant: %s = %g [%s] (from %s in GCM)\n", dest.c_str(), val, units.c_str(), src.c_str());
+    pism_config()->set_number(dest, val);
 
 
 
@@ -747,8 +747,8 @@ void IceCoupler_PISM::set_constant(std::string const &dest, double src_val, std:
     CVConverter cv(usrc, udest);
     double dest_val = cv.convert(src_val);
 
-    pism_config()->set_double(dest, dest_val);
-printf("IceCoupler_PISM::transfer_constant: %s = %g %s (from %s in GCM)\n", dest.c_str(), dest_val, dest_units.c_str(), usrc.c_str());
+    pism_config()->set_number(dest, dest_val);
+    printf("IceCoupler_PISM::transfer_constant: %s = %g %s (from %s in GCM)\n", dest.c_str(), dest_val, dest_units.c_str(), usrc.c_str());
 }
 
 
