@@ -10,7 +10,7 @@
 #pism_find_prerequisites()
 
 
-find_path(PISM_INCLUDE_DIR pism/base/iceModel.hh
+find_path(PISM_INCLUDE_DIR pism/pism_config.hh
           HINTS ${PISM_DIR}/include)
 
 set(PISM_INCLUDE_DIRS ${PISM_INCLUDE_DIR} ${PISM_INCLUDE_DIR}/pism)
