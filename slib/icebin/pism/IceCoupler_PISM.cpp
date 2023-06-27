@@ -28,6 +28,7 @@
 
 #include <pism/stressbalance/StressBalance.hh>
 #include <pism/earth/BedDef.hh>
+#include <pism/pism_config.hh>
 
 #include <ibmisc/netcdf.hpp>
 #include <ibmisc/ibmisc.hpp>
@@ -249,7 +250,7 @@ printf("[%d] pism_size = %d\n", pism_rank(), pism_size());
     Logger::Ptr log = ctx->log();
 
     log->message(2, "IceBin %s (GCM Coupler)\n",
-                 PISM_Revision);
+                 pism::revision);
 
     bool input_file_set = options::Bool("-i", "input file name");
     std::string usage =
