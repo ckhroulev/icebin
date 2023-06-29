@@ -294,7 +294,7 @@ void IceCoupler_PISM::_model_start(
 #endif
 
     log->message(3, "* Setting the computational grid...\n");
-    pism_grid = IceGrid::FromOptions(ctx);
+    pism_grid = pism::Grid::FromOptions(ctx);
     ::printf("time_start_s from fn input = %f\n",time_start_s);
     ::printf("gcm_coupler->time_start_s = %f\n",gcm_coupler->time_start_s);
 
@@ -354,7 +354,7 @@ void IceCoupler_PISM::_model_start(
     // Check that all PISM inputs are bound to a variable
     bool err = false;
     for (unsigned i=0; i<pism_ivars.size(); ++i) {
-        IceModelVec2S *pism_var = pism_ivars[i];
+        array::Scalar *pism_var = pism_ivars[i];
         if (!pism_var && !(contract[INPUT][i].flags & contracts::PRIVATE)) {
             fprintf(stderr,
                 "PISM input %s (i=%d) is not bound to a variable\n",
@@ -366,7 +366,7 @@ void IceCoupler_PISM::_model_start(
 
 
     // Initialize scatter/gather stuff
-    vtmp = std::make_shared<pism::IceModelVec2S>(pism_grid, "vtmp", pism::WITHOUT_GHOSTS);
+    vtmp = std::make_shared<pism::array::Scalar>(pism_grid, "vtmp");
     vtmp_p0 = vtmp->allocate_proc0_copy();
 
     // Initialize scatter/gather stuff (probably obsolete)
@@ -426,8 +426,8 @@ void IceCoupler_PISM::_model_start(
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-out.nc").string();
 
-        // Convert array from pism::IceModelVec2S* to pism::IceModelVec*
-        std::vector<pism::IceModelVec const *> vecs;
+        // Convert array from pism::array::Scalar* to pism::array::Array*
+        std::vector<pism::array::Array const *> vecs;
         for (unsigned i=0; i<pism_ovars.size(); ++i) {
             if (!(contract[OUTPUT][i].flags & contracts::PRIVATE))
                 vecs.push_back(pism_ovars[i]);
@@ -443,7 +443,7 @@ void IceCoupler_PISM::_model_start(
 	::printf("Initialize pism-in \n");
         boost::filesystem::path output_dir(params.output_dir);
         std::string ofname = (output_dir / "pism-in.nc").string();
-        std::vector<pism::IceModelVec const *> vecs;
+        std::vector<pism::array::Array const *> vecs;
         for (unsigned i=0; i<pism_ivars.size(); ++i) {
             if (!(contract[INPUT][i].flags & contracts::PRIVATE))
                 vecs.push_back(pism_ivars[i]);
@@ -527,7 +527,7 @@ void IceCoupler_PISM::run_timestep(double time_s,
                 }
             }
             if (!(cf.flags & contracts::PRIVATE)) {
-                IceModelVec2S *pism_var = pism_ivars[ivar];
+                array::Scalar *pism_var = pism_ivars[ivar];
                 pism_var->get_from_proc0(*vtmp_p0);
             }
         }
@@ -641,7 +641,7 @@ void IceCoupler_PISM::deallocate()
 
 
 void IceCoupler_PISM::iceModelVec2S_to_blitz_xy(
-    pism::IceModelVec2S const &pism_var,
+    pism::array::Scalar const &pism_var,
     blitz::Array<double,1> &ret1)    // 1D version of 2D array
 {
     PetscErrorCode ierr;
@@ -662,7 +662,7 @@ void IceCoupler_PISM::iceModelVec2S_to_blitz_xy(
 #if 0
 // Don't know how to translate get_dof() to current PISM API
     if (pism_var.get_dof() != 1)
-        SETERRQ(pism_grid->com, 1, "This method only supports IceModelVecs with dof == 1");
+        SETERRQ(pism_grid->com, 1, "This method only supports array::Arrays with dof == 1");
 #endif
 
     // Gather data to one processor

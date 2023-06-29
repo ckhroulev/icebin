@@ -23,8 +23,7 @@
 #include <petsc.h>
 #include <petscvec.h>
 #include <pism/util/Context.hh>
-#include <pism/util/IceGrid.hh>
-#include <pism/util/iceModelVec.hh>
+#include <pism/util/Grid.hh>
 #include <pism/icemodel/IceModel.hh>
 
 #include <pism/util/pism_options.hh>
@@ -96,7 +95,7 @@ private:
     // so they get destroyed in the proper reverse order.
     // See: http://msdn.microsoft.com/en-us/library/8183zf3x%28v=vs.110%29.aspx
     std::unique_ptr<pism::petsc::Initializer> petsc_initializer;
-    pism::IceGrid::Ptr pism_grid;
+    std::shared_ptr<pism::Grid> pism_grid;
     std::unique_ptr<pism::icebin::IBIceModel> pism_ice_model;
     pism::icebin::IBSurfaceModel *pism_surface_model;   // We don't own this.
 public:
@@ -105,7 +104,7 @@ public:
 
 private:
     // Stuff used for Scatter/Gather
-    std::shared_ptr<pism::IceModelVec2S> vtmp;
+    std::shared_ptr<pism::array::Scalar> vtmp;
     std::shared_ptr<pism::petsc::Vec> vtmp_p0;
     // (probably obsolete...)
     pism::petsc::DM::Ptr da2;
@@ -114,11 +113,11 @@ private:
     std::shared_ptr<pism::petsc::Vec> Hp0;            //!< Resulting vector on process 0
 
     // Corresponding PISM variable for each input field
-    std::vector<pism::IceModelVec2S *> pism_ivars;
+    std::vector<pism::array::Scalar *> pism_ivars;
 
     // --- Corresponding PISM variable for each output field
     // The variable, as it exists in PISM
-    std::vector<pism::IceModelVec2S const *> pism_ovars;
+    std::vector<pism::array::Scalar const *> pism_ovars;
 
 //  // An MPI-collected version of the variable
 //  std::vector<blitz::Array<double,2> icebin_ovars;
@@ -213,7 +212,7 @@ protected:
     @param icebin_var_xy The array to write into (on the root node).
     If this array is not yet allocated (ROOT NODE ONLY), it will be allocated.*/
     void iceModelVec2S_to_blitz_xy(
-        pism::IceModelVec2S const &pism_var,
+        pism::array::Scalar const &pism_var,
         blitz::Array<double,1> &ret);
 
 
