@@ -18,7 +18,7 @@
 
 #include <mpi.h>        // Must be first
 #include <limits>
-#include <pism/enthalpyConverter.hh>
+#include <pism/util/EnthalpyConverter.hh>
 #include <ibmisc/VarTransformer.hpp>
 #include <icebin/contracts/contracts.hpp>
 #include <icebin/modele/GCMCoupler_ModelE.hpp>
