@@ -62,7 +62,7 @@ macro(icebin_find_petsc)
   endif()
 
   if (PETSC_FOUND)
-    message(STATUS "Found PETSc ${PETSC_VERSION} in ${PETSC_PREFIX}")
+    message(STATUS "Found PETSc: ${PETSC_PREFIX} (found version \"${PETSC_VERSION}\")")
   endif()
 endmacro()
 
@@ -79,13 +79,16 @@ if (BUILD_COUPLER)
         set(USE_PISM NO)
     endif()
     if(USE_PISM)
-        find_package(PISM)
+        find_package(PkgConfig REQUIRED)
+
+        pkg_search_module(PISM REQUIRED IMPORTED_TARGET pismicebin)
+        if (PISM_FOUND)
+          message(STATUS
+            "Found PISM-IceBin: ${PISM_PREFIX} (found version \"${PISM_VERSION}\")")
+        endif()
+
         icebin_find_petsc()
-        include_directories(
-            ${PISM_INCLUDE_DIRS}
-            ${PETSC_INCLUDE_DIRS}
-        )
-        list(APPEND EXTERNAL_LIBS PkgConfig::PETSC ${PISM_LIBRARIES})
+        list(APPEND EXTERNAL_LIBS PkgConfig::PETSC PkgConfig::PISM)
 
         add_definitions(-DUSE_PISM)
     endif()
