@@ -133,7 +133,6 @@ add_definitions(-DUSE_NETCDF)
 include_directories(${NETCDF_CXX4_INCLUDE_DIR})
 list(APPEND EXTERNAL_LIBS ${NETCDF_CXX4_LIBRARY})
 
-
 # --- IBMisc
 find_package(Ibmisc REQUIRED)
 list(APPEND EXTERNAL_LIBS ${IBMISC_LIBRARY})
@@ -142,7 +141,6 @@ include_directories(${IBMISC_INCLUDE_DIR})
 find_package(ZLIB REQUIRED)
 list(APPEND EXTERNAL_LIBS ${ZLIB_LIBRARIES})
 include_directories(${ZLIB_INCLUDE_DIRS})
-
 
 # --- Proj.4
 find_package(PROJ4 REQUIRED)
@@ -153,68 +151,6 @@ list(APPEND EXTERNAL_LIBS ${PROJ4_LIBRARIES})
 # --- Eigen
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
-
-#find_package(GALAHAD REQUIRED)     # This should be optional
-
-#find_package(CGAL REQUIRED)
-#find_package(MPFR REQUIRED)        # Used by CGAL
-
-
-#find_package(PROJ4)
-#find_package(Boost COMPONENTS filesystem system date_time thread REQUIRED)
-#find_package(UDUNITS2 REQUIRED)
-
-## Used by dependencies
-#find_package(GMP REQUIRED)
-#find_package(GSL REQUIRED)
-#find_package(FFTW REQUIRED)
-
-#find_package(OpenMP REQUIRED)  # Used by GALAHAD, but not in code we run.  We are an MPI shop.
-#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-
-
-
-## Set Pism_EXTERNAL_LIBS and include directories.
-#include_directories (
-#   ${EVERYTRACE_INCLUDE_DIR}
-#   ${PROJECT_SOURCE_DIR}/slib
-#   ${Boost_INCLUDE_DIRS}
-#    ${NETCDF_INCLUDES} ${NETCDF_INCLUDES_CXX} ${NETCDF_INCLUDES_F77}
-#    ${BLITZ++_INCLUDE_DIR}
-#    ${GMP_INCLUDE_DIR}
-#    ${CGAL_INCLUDE_DIR}
-#    ${FFTW_INCLUDE_DIRS}
-#    ${FFTW_INCLUDES}
-#    ${GSL_INCLUDES}
-#    ${UDUNITS2_INCLUDES}
-#    ${MPI_C_INCLUDE_PATH}
-#
-#   ${GALAHAD_INCLUDE_DIRS})     # This should be optional
-
-
-#list(APPEND EXTERNAL_LIBS
-#   ${EVERYTRACE_CF_LIBRARY}
-#   ${Boost_LIBRARIES}
-#    ${UDUNITS2_LIBRARIES}
-#    ${FFTW_LIBRARIES}
-#    ${GSL_LIBRARIES}
-#
-#    ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
-#    ${MPI_C_LIBRARIES}
-#   ${GALAHAD_LIBRARIES}
-#   ${PROJ4_LIBRARIES}
-#   ${GMP_LIBRARY}
-#   ${CGAL_LIBRARY}
-#   ${MPFR_LIBRARIES}
-#)
-#
-#if (${USE_PISM})
-#   list(APPEND EXTERNAL_LIBS
-#       ${PETSC_LIBRARIES}
-#       ${PISM_LIBRARIES}
-#   )
-#endif()
 
 # -------- Process subdirectories of the build
 add_subdirectory(slib)
