@@ -99,7 +99,7 @@ private:
     std::unique_ptr<pism::icebin::IBIceModel> pism_ice_model;
     pism::icebin::IBSurfaceModel *pism_surface_model;   // We don't own this.
 public:
-    pism::Context::ConfigPtr const pism_config() const
+  std::shared_ptr<pism::Config> const pism_config() const
         { return pism_ice_model->ctx()->config(); }
 
 private:
